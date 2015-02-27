@@ -63,14 +63,13 @@ pushd /tmp > /dev/null
 ### PREREQ SOFTWARE
 
 echo Installing Node.js...
-wget --no-check-certificate https://raw.github.com/isaacs/nave/master/nave.sh > /tmp/naveNode.log 2>&1
-chmod +x nave.sh
-sudo ./nave.sh usemain 0.10.26  > /tmp/naveNodeUseMain.log 2>&1
+sudo apt-get install -y nodejs
+sudo apt-get install -y npm
 # ./nave.sh install 0.10.26
 # ./nave.sh use 0.10.26
 
-nodeInstalled=$(node -v)
-if [ "$nodeInstalled" != "v0.10.26" ]; then
+nodeInstalled=$(nodejs -v)
+if [ "$nodeInstalled" != "v0.10.25" ]; then
         echo Node.js could not be installed.
         exit 1
 fi
@@ -86,17 +85,10 @@ wget --no-check-certificate https://raw.github.com/jeffwilcox/waz-updown/master/
 ### MONGODB
 
 echo Adding MongoDB repos to the system...
-cat > ./mongodb.repo << "YUM10GEN"
-[mongodb]
-name=MongoDB Repository
-baseurl=http://downloads-distro.mongodb.org/repo/redhat/os/x86_64/
-gpgcheck=0
-enabled=1
-YUM10GEN
- 
-sudo mv mongodb.repo /etc/yum.repos.d/
-sudo yum install -y mongodb-org > /tmp/installingMongo.log
-
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | sudo tee /etc/apt/sources.list.d/mongodb.list
+sudo apt-get update
+sudo apt-get install -y mongodb-org
 
 ### AZURE STORAGE CONFIG
 
@@ -218,7 +210,7 @@ if $isPrimary; then
 	echo
 	echo Here is a suggested password that is a random UUID, in case you like 
 	echo what you see:
-	node -e "var uuid = require('node-uuid'); console.log(uuid.v4());"
+	nodejs -e "var uuid = require('node-uuid'); console.log(uuid.v4());"
 	echo
 
 	read -s -p "Please enter a new password for the 'clusteradmin' MongoDB user: " primaryPasscode
@@ -279,7 +271,7 @@ if $isUsingDataDisk; then
 n
 p
 1
-1
+
 
 w
 ENDPARTITION
@@ -304,8 +296,9 @@ fi
 echo Creating MongoDB folders on the disk owned by the mongod user in $mongoDataPath...
 sudo mkdir $mongoDataPath/log
 sudo mkdir $mongoDataPath/db
-sudo chown -R mongod:mongod $mongoDataPath
-
+sudo chown -R mongodb:mongodb $mongoDataPath
+sudo mkdir /var/run/mongodb
+sudo chwon -R mongodb:mongodb /var/run/mongodb
 # FYI: YAML syntax introduced in MongoDB 2.6
 echo Configuring MongoDB 2.6...
 sudo tee /etc/mongod.conf > /dev/null <<EOF
@@ -335,15 +328,15 @@ if $isPrimary; then
 	echo Generating replica set security key...
 	openssl rand -base64 753 > $replicaSetKey
 	echo Securely storing replica set key in Azure storage...
-	node updown.js mongodb up $replicaSetKey
+	nodejs updown.js mongodb up $replicaSetKey
 else
 	echo Acquiring replica set security key from the cloud...
-	node updown.js mongodb down $replicaSetKey
+	nodejs updown.js mongodb down $replicaSetKey
 fi
 
 echo Installing replica set key on the machine...
 
-sudo chown mongod:mongod $replicaSetKey
+sudo chown mongodb:mongodb $replicaSetKey
 sudo chmod 0600 $replicaSetKey
 sudo mv $replicaSetKey /etc/$replicaSetKey
 
@@ -410,7 +403,7 @@ EOF
 	echo
 
 	if ask "Would you like to connect to MongoDB Shell now as 'clusteradmin' to do this? "; then
-		/usr/bin/mongo admin -uclusteradmin -p$primaryPasscode
+		/usr/bin/mongo admin -u clusteradmin -p $primaryPasscode
 	fi
 
 else
@@ -438,13 +431,13 @@ EOF
 	/usr/bin/mongo $primaryHostname/admin -uclusteradmin -p$primaryPasscode /tmp/joinCluster.js --verbose > /tmp/joinCluster.log 2>&1
 
 	if ask "Would you like to view the replica set status? "; then
-		/usr/bin/mongo $primaryHostname/admin -uclusteradmin -p$primaryPasscode << EOF
+		/usr/bin/mongo $primaryHostname/admin -u clusteradmin -p$primaryPasscode << EOF
 rs.status();
 EOF
 	fi
 
 	if ask "Would you like to connect to the primary node to look around? "; then
-		/usr/bin/mongo $primaryHostname/admin -uclusteradmin -p$primaryPasscode
+		/usr/bin/mongo $primaryHostname/admin -u clusteradmin -p $primaryPasscode
 	fi
 
 fi

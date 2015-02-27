@@ -5,6 +5,8 @@ An unofficial set of Bash scripts to build out a simple MongoDB replica set, des
 
 Created for [this blog post by Jeff Wilcox](http://www.jeff.wilcox.name/2013/09/mongodb-azure-linux/).
 
+This is a fork that specifically works for Ubuntu instances
+
 ## Supported versions
 
 This script currently is designed to deploy MongoDB 2.6 replica sets.

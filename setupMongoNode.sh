@@ -298,7 +298,7 @@ sudo mkdir $mongoDataPath/log
 sudo mkdir $mongoDataPath/db
 sudo chown -R mongodb:mongodb $mongoDataPath
 sudo mkdir /var/run/mongodb
-sudo chwon -R mongodb:mongodb /var/run/mongodb
+sudo chown -R mongodb:mongodb /var/run/mongodb
 # FYI: YAML syntax introduced in MongoDB 2.6
 echo Configuring MongoDB 2.6...
 sudo tee /etc/mongod.conf > /dev/null <<EOF
@@ -428,10 +428,10 @@ EOF
 	fi
 
 	echo Joining the MongoDB cluster...
-	/usr/bin/mongo $primaryHostname/admin -uclusteradmin -p$primaryPasscode /tmp/joinCluster.js --verbose > /tmp/joinCluster.log 2>&1
+	/usr/bin/mongo $primaryHostname/admin -uclusteradmin -p $primaryPasscode /tmp/joinCluster.js --verbose > /tmp/joinCluster.log 2>&1
 
 	if ask "Would you like to view the replica set status? "; then
-		/usr/bin/mongo $primaryHostname/admin -u clusteradmin -p$primaryPasscode << EOF
+		/usr/bin/mongo $primaryHostname/admin -u clusteradmin -p $primaryPasscode << EOF
 rs.status();
 EOF
 	fi

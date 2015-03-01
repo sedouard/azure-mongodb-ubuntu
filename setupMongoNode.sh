@@ -72,8 +72,8 @@ sudo npm install -g npm@latest
 # ./nave.sh install 0.10.26
 # ./nave.sh use 0.10.26
 
-nodeInstalled=$(nodejs -v)
-if [ "$nodeInstalled" != "v0.10.25" ]; then
+nodeInstalled=$(node --version)
+if [ "$nodeInstalled" != "v0.10.36" ]; then
         echo Node.js could not be installed.
         exit 1
 fi

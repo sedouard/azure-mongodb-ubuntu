@@ -361,7 +361,7 @@ echo
 
 echo Starting MongoDB service...
 sudo service mongod start
-sudo chkconfig mongod on
+sudo update-rc.d mongod defaults
 
 if $isPrimary; then
 

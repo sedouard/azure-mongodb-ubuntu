@@ -166,7 +166,7 @@ primaryHostname=$(hostname)
 
 ### CONFIGURATION
 
-read -p "What is the name of the replica set? (Recommended: rs0) " replicaSetName
+read -p "What is the name of the replica set? (Default: rs0) " replicaSetName
 
 if [ -z "$replicaSetName" ]; then
 	replicaSetName=rs0
@@ -223,12 +223,12 @@ if $isPrimary; then
 	node -e "var uuid = require('node-uuid'); console.log(uuid.v4());"
 	echo
 
-	primaryPasscode="wont"
-	primaryPasscodeConfirmation="match"
+	primaryPasscodeConfirmation="$primaryPasscode somethingExtraSoItDoesntMatch"
+	tempPasscodeHolder="$primaryPasscode"
 
 	while [ "$primaryPasscode" != "$primaryPasscodeConfirmation" ]
 	do
-		if [ "$primaryPasscode" != "wont" ]; then
+		if [ "$primaryPasscode" != "$tempPasscodeHolder" ]; then
 			echo The passwords did not match, please try again.
 		fi
 		read -s -p "Please enter a new password for the 'clusteradmin' MongoDB user: " primaryPasscode
@@ -236,6 +236,8 @@ if $isPrimary; then
 		read -s -p "Please confirm that awesome new password: " primaryPasscodeConfirmation
 		echo
 	done
+
+	tempPasscodeHolder=
 
 fi
 

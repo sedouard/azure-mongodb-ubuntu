@@ -1,6 +1,6 @@
 #!/bin/bash
 # 
-# Copyright (c) Microsoft.  All rights reserved.
+# Copyright (c) Microsoft. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -81,12 +81,12 @@ sudo npm install -g npm@latest
 
 nodeInstalled=$(node --version)
 if [ -z "$nodeInstalled" ]; then
-        echo Node.js could not be installed.
-        exit 1
+	echo ----ERROR---- Node.js could not be installed.
+	exit 1
 fi
 
 echo Installing Azure Node.js module...
-npm install azure@0.8.1  > /tmp/nodeInstall.log 2>&1
+npm install azure@0.8.1 > /tmp/nodeInstall.log 2>&1
 
 echo Installing Azure storage utility...
 wget --no-check-certificate https://raw.github.com/jeffwilcox/waz-updown/master/updown.js > /tmp/updownInstall.log 2>&1
@@ -120,34 +120,33 @@ fi
 
 # Awesome ask function by @davejamesmiller https://gist.github.com/davejamesmiller/1965569
 function ask {
-    while true; do
- 
-        if [ "${2:-}" = "Y" ]; then
-            prompt="Y/n"
-            default=Y
-        elif [ "${2:-}" = "N" ]; then
-            prompt="y/N"
-            default=N
-        else
-            prompt="y/n"
-            default=
-        fi
- 
-        # Ask the question
-        read -p "$1 [$prompt] " REPLY
- 
-        # Default?
-        if [ -z "$REPLY" ]; then
-            REPLY=$default
-        fi
- 
-        # Check if the reply is valid
-        case "$REPLY" in
-            Y*|y*) return 0 ;;
-            N*|n*) return 1 ;;
-        esac
- 
-    done
+	while true; do
+
+		if [ "${2:-}" = "Y" ]; then
+			prompt="Y/n"
+			default=Y
+		elif [ "${2:-}" = "N" ]; then
+			prompt="y/N"
+			default=N
+		else
+			prompt="y/n"
+			default=
+		fi
+
+		# Ask the question
+		read -p "$1 [$prompt] " REPLY
+
+		# Default?
+		if [ -z "$REPLY" ]; then
+			REPLY=$default
+		fi
+
+		# Check if the reply is valid
+		case "$REPLY" in
+			Y*|y*) return 0 ;;
+			N*|n*) return 1 ;;
+		esac
+	done
 }
 
 
@@ -224,15 +223,19 @@ if $isPrimary; then
 	node -e "var uuid = require('node-uuid'); console.log(uuid.v4());"
 	echo
 
-	read -s -p "Please enter a new password for the 'clusteradmin' MongoDB user: " primaryPasscode
-	echo
-	read -s -p "Please confirm that awesome new password: " primaryPasscodeConfirmation
-	echo
+	primaryPasscode="wont"
+	primaryPasscodeConfirmation="match"
 
-	if [ "$primaryPasscode" != "$primaryPasscodeConfirmation" ]; then
-		echo The passwords did not match. Sorry. Goodbye.
-		exit 1
-	fi
+	while [ "$primaryPasscode" != "$primaryPasscodeConfirmation" ]
+	do
+		if [ "$primaryPasscode" != "wont" ]; then
+			echo The passwords did not match, please try again.
+		fi
+		read -s -p "Please enter a new password for the 'clusteradmin' MongoDB user: " primaryPasscode
+		echo
+		read -s -p "Please confirm that awesome new password: " primaryPasscodeConfirmation
+		echo
+	done
 
 fi
 
@@ -288,7 +291,7 @@ w
 ENDPARTITION
 
 	echo Formatting w/ext4...
-	sudo mkfs.ext4 /dev/sdc1  > /tmp/format.log 2>&1
+	sudo mkfs.ext4 /dev/sdc1 > /tmp/format.log 2>&1
 
 	echo Preparing permanent data disk mount point at /mnt/data...
 	sudo mkdir /mnt/data
@@ -314,25 +317,25 @@ sudo chown -R mongodb:mongodb /var/run/mongodb
 echo Configuring MongoDB 2.6...
 sudo tee /etc/mongod.conf > /dev/null <<EOF
 systemLog:
-    destination: file
-    path: "/var/log/mongodb/mongod.log"
-    quiet: true
-    logAppend: true
+		destination: file
+		path: "/var/log/mongodb/mongod.log"
+		quiet: true
+		logAppend: true
 processManagement:
-    fork: true
-    pidFilePath: "/var/run/mongodb/mongod.pid"
+		fork: true
+		pidFilePath: "/var/run/mongodb/mongod.pid"
 net:
-    port: $mongodPort
+		port: $mongodPort
 security:
-    keyFile: "/etc/$replicaSetKey"
-    authorization: "enabled"
+		keyFile: "/etc/$replicaSetKey"
+		authorization: "enabled"
 storage:
-    dbPath: "$mongoDataPath/db"
-    directoryPerDB: true
-    journal:
-        enabled: true
+		dbPath: "$mongoDataPath/db"
+		directoryPerDB: true
+		journal:
+				enabled: true
 replication:
-    replSetName: "$replicaSetName"
+		replSetName: "$replicaSetName"
 EOF
 
 if $isPrimary; then
@@ -375,19 +378,19 @@ EOF
 	/usr/bin/mongo /tmp/initializeReplicaSetPrimary.js > /tmp/creatingMongoCluster.log 2>&1
 
 	sleep 10
-	
+
 	echo Creating cluster administrator account...
 	cat <<EOF > /tmp/initializeAuthentication.js
 db = db.getSiblingDB('admin');
 db.createUser({
-  user: 'clusteradmin',
-  pwd: '$primaryPasscode',
-  roles: [
-    'userAdminAnyDatabase',
-    'clusterAdmin',
-    { db: 'config', role: 'readWrite' },
-    { db: 'local', role: 'read' }
-  ]
+	user: 'clusteradmin',
+	pwd: '$primaryPasscode',
+	roles: [
+		'userAdminAnyDatabase',
+		'clusterAdmin',
+		{ db: 'config', role: 'readWrite' },
+		{ db: 'local', role: 'read' }
+	]
 });
 EOF
 

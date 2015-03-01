@@ -63,8 +63,12 @@ pushd /tmp > /dev/null
 ### PREREQ SOFTWARE
 
 echo Installing Node.js...
+sudo apt-get update && apt-get install -y curl git
+sudo curl -sL https://deb.nodesource.com/setup | sudo bash -
 sudo apt-get install -y nodejs
-sudo apt-get install -y npm
+sudo npm install -g npm@latest
+# sudo apt-get install -y nodejs
+# sudo apt-get install -y npm
 # ./nave.sh install 0.10.26
 # ./nave.sh use 0.10.26
 

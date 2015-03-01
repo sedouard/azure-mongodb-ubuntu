@@ -221,7 +221,7 @@ if $isPrimary; then
 	echo
 	echo Here is a suggested password that is a random UUID, in case you like 
 	echo what you see:
-	nodejs -e "var uuid = require('node-uuid'); console.log(uuid.v4());"
+	node -e "var uuid = require('node-uuid'); console.log(uuid.v4());"
 	echo
 
 	read -s -p "Please enter a new password for the 'clusteradmin' MongoDB user: " primaryPasscode
@@ -339,10 +339,10 @@ if $isPrimary; then
 	echo Generating replica set security key...
 	openssl rand -base64 753 > $replicaSetKey
 	echo Securely storing replica set key in Azure storage...
-	nodejs updown.js mongodb up $replicaSetKey
+	node updown.js mongodb up $replicaSetKey
 else
 	echo Acquiring replica set security key from the cloud...
-	nodejs updown.js mongodb down $replicaSetKey
+	node updown.js mongodb down $replicaSetKey
 fi
 
 echo Installing replica set key on the machine...
@@ -410,7 +410,7 @@ EOF
 	echo http://docs.mongodb.org/manual/tutorial/add-user-to-database/
 	echo 
 	echo To connect to a Mongo instance:
-	echo   mongo MYDB -u Username -p
+	echo   mongo MYDB -u username -p password
 	echo
 
 	if ask "Would you like to connect to MongoDB Shell now as 'clusteradmin' to do this? "; then

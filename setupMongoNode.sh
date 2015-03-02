@@ -64,20 +64,14 @@ echo Forcing locale settings to en_US.UTF-8
 export LANGUAGE=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
-locale-gen en_US.UTF-8
-sudo dpkg-reconfigure locales
 
 ### PREREQ SOFTWARE
 
 echo Installing Node.js...
-sudo apt-get update && apt-get install -y curl git
+sudo apt-get update
 sudo curl -sL https://deb.nodesource.com/setup | sudo bash -
 sudo apt-get install -y nodejs
 sudo npm install -g npm@latest
-# sudo apt-get install -y nodejs
-# sudo apt-get install -y npm
-# ./nave.sh install 0.10.26
-# ./nave.sh use 0.10.26
 
 nodeInstalled=$(node --version)
 if [ -z "$nodeInstalled" ]; then

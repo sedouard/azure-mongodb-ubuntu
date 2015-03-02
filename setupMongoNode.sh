@@ -313,25 +313,25 @@ sudo chown -R mongodb:mongodb /var/run/mongodb
 echo Configuring MongoDB 2.6...
 sudo tee /etc/mongod.conf > /dev/null <<EOF
 systemLog:
-		destination: file
-		path: "/var/log/mongodb/mongod.log"
-		quiet: true
-		logAppend: true
+  destination: "file"
+  path: "/var/log/mongodb/mongod.log"
+  quiet: false
+  logAppend: true
 processManagement:
-		fork: true
-		pidFilePath: "/var/run/mongodb/mongod.pid"
+  fork: true
+  pidFilePath: "/var/run/mongodb/mongod.pid"
 net:
-		port: $mongodPort
+  port: $mongodPort
 security:
-		keyFile: "/etc/$replicaSetKey"
-		authorization: "enabled"
+  keyFile: "/etc/$replicaSetKey"
+  authorization: "enabled"
 storage:
-		dbPath: "$mongoDataPath/db"
-		directoryPerDB: true
-		journal:
-				enabled: true
+  dbPath: "$mongoDataPath/db"
+  directoryPerDB: true
+  journal:
+    enabled: true
 replication:
-		replSetName: "$replicaSetName"
+  replSetName: "$replicaSetName"
 EOF
 
 if $isPrimary; then

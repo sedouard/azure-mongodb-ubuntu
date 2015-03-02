@@ -1,3 +1,9 @@
+=======
+waz-mongodb
+===========
+
+[![Join the chat at https://gitter.im/sedouard/waz-mongodb](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sedouard/waz-mongodb?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 An unofficial set of Bash scripts to build out a simple MongoDB replica set, designed for Microsoft Azure Linux compute VMs.
 
 Created for [this blog post by Jeff Wilcox](http://www.jeff.wilcox.name/2013/09/mongodb-azure-linux/).

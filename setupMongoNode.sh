@@ -356,8 +356,10 @@ echo This may take a few minutes as the initial journal is preallocated.
 echo
 
 echo Starting MongoDB service...
+# This needs to be done again for some reason
+sudo chown -R mongodb:mongodb $mongoDataPath
 sudo service mongod start
-sudo update-rc.d mongod defaults
+# sudo update-rc.d mongod defaults
 
 if $isPrimary; then
 

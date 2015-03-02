@@ -381,14 +381,14 @@ EOF
 	cat <<EOF > /tmp/initializeAuthentication.js
 db = db.getSiblingDB('admin');
 db.createUser({
-	user: 'clusteradmin',
-	pwd: '$primaryPasscode',
-	roles: [
-		'userAdminAnyDatabase',
-		'clusterAdmin',
-		{ db: 'config', role: 'readWrite' },
-		{ db: 'local', role: 'read' }
-	]
+  user: 'clusteradmin',
+  pwd: '$primaryPasscode',
+  roles: [
+    'userAdminAnyDatabase',
+    'clusterAdmin',
+    { db: 'config', role: 'readWrite' },
+    { db: 'local', role: 'read' }
+  ]
 });
 EOF
 

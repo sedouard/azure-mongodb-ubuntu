@@ -1,6 +1,6 @@
 image="b39f27a8b8c64d52b05eac6a62ebad85__Ubuntu-14_04_1-LTS-amd64-server-20150123-en-us-30GB"
 userName="mongouser"
-certPath="~/.ssh/dosmongodb.pem"
+certPath="~/.ssh/mongocluster.pem"
 affinityGroupLocation="East US"
 affinityGroup="mongoag"
 availabilitySet="MongoDB"

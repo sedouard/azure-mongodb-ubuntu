@@ -61,23 +61,18 @@ pushd /tmp > /dev/null
 ### FORCE LOCALE SETTINGS
 
 echo Forcing locale settings to en_US.UTF-8
+sudo locale-gen UTF-8
 export LANGUAGE=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
-locale-gen en_US.UTF-8
-sudo dpkg-reconfigure locales
 
 ### PREREQ SOFTWARE
 
 echo Installing Node.js...
-sudo apt-get update && apt-get install -y curl git
+sudo apt-get update
 sudo curl -sL https://deb.nodesource.com/setup | sudo bash -
 sudo apt-get install -y nodejs
 sudo npm install -g npm@latest
-# sudo apt-get install -y nodejs
-# sudo apt-get install -y npm
-# ./nave.sh install 0.10.26
-# ./nave.sh use 0.10.26
 
 nodeInstalled=$(node --version)
 if [ -z "$nodeInstalled" ]; then
@@ -319,25 +314,26 @@ sudo chown -R mongodb:mongodb /var/run/mongodb
 echo Configuring MongoDB 2.6...
 sudo tee /etc/mongod.conf > /dev/null <<EOF
 systemLog:
-		destination: file
-		path: "/var/log/mongodb/mongod.log"
-		quiet: true
-		logAppend: true
-processManagement:
-		fork: true
-		pidFilePath: "/var/run/mongodb/mongod.pid"
+  destination: "file"
+  path: "/var/log/mongodb/mongod.log"
+  quiet: false
+  logAppend: true
+# Unneeded since 'sudo service mongod start' runs in the background
+# processManagement:
+#  fork: false
+#  pidFilePath: "/var/run/mongodb/mongod.pid"
 net:
-		port: $mongodPort
+  port: $mongodPort
 security:
-		keyFile: "/etc/$replicaSetKey"
-		authorization: "enabled"
+  keyFile: "/etc/$replicaSetKey"
+  authorization: "enabled"
 storage:
-		dbPath: "$mongoDataPath/db"
-		directoryPerDB: true
-		journal:
-				enabled: true
+  dbPath: "$mongoDataPath/db"
+  directoryPerDB: true
+  journal:
+    enabled: true
 replication:
-		replSetName: "$replicaSetName"
+  replSetName: "$replicaSetName"
 EOF
 
 if $isPrimary; then
@@ -362,8 +358,10 @@ echo This may take a few minutes as the initial journal is preallocated.
 echo
 
 echo Starting MongoDB service...
+# This needs to be done again for some reason
+sudo chown -R mongodb:mongodb $mongoDataPath
 sudo service mongod start
-sudo update-rc.d mongod defaults
+# sudo update-rc.d mongod defaults
 
 if $isPrimary; then
 
@@ -385,14 +383,14 @@ EOF
 	cat <<EOF > /tmp/initializeAuthentication.js
 db = db.getSiblingDB('admin');
 db.createUser({
-	user: 'clusteradmin',
-	pwd: '$primaryPasscode',
-	roles: [
-		'userAdminAnyDatabase',
-		'clusterAdmin',
-		{ db: 'config', role: 'readWrite' },
-		{ db: 'local', role: 'read' }
-	]
+  user: 'clusteradmin',
+  pwd: '$primaryPasscode',
+  roles: [
+    'userAdminAnyDatabase',
+    'clusterAdmin',
+    { db: 'config', role: 'readWrite' },
+    { db: 'local', role: 'read' }
+  ]
 });
 EOF
 
@@ -413,7 +411,7 @@ EOF
 	echo
 	echo Read up on this here:
 	echo http://docs.mongodb.org/manual/tutorial/add-user-to-database/
-	echo 
+	echo
 	echo To connect to a Mongo instance:
 	echo   mongo MYDB -u username -p password
 	echo
@@ -444,7 +442,7 @@ EOF
 	fi
 
 	echo Joining the MongoDB cluster...
-	/usr/bin/mongo $primaryHostname/admin -uclusteradmin -p $primaryPasscode /tmp/joinCluster.js --verbose > /tmp/joinCluster.log 2>&1
+	/usr/bin/mongo $primaryHostname/admin -u clusteradmin -p $primaryPasscode /tmp/joinCluster.js --verbose > /tmp/joinCluster.log 2>&1
 
 	if ask "Would you like to view the replica set status? "; then
 		/usr/bin/mongo $primaryHostname/admin -u clusteradmin -p $primaryPasscode << EOF

@@ -61,6 +61,7 @@ pushd /tmp > /dev/null
 ### FORCE LOCALE SETTINGS
 
 echo Forcing locale settings to en_US.UTF-8
+sudo locale-gen UTF-8
 export LANGUAGE=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8

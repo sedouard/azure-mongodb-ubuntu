@@ -409,7 +409,7 @@ EOF
 	echo
 	echo Read up on this here:
 	echo http://docs.mongodb.org/manual/tutorial/add-user-to-database/
-	echo 
+	echo
 	echo To connect to a Mongo instance:
 	echo   mongo MYDB -u username -p password
 	echo

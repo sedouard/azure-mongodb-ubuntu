@@ -318,9 +318,10 @@ systemLog:
   path: "/var/log/mongodb/mongod.log"
   quiet: false
   logAppend: true
-processManagement:
-  fork: true
-  pidFilePath: "/var/run/mongodb/mongod.pid"
+# Unneeded since 'sudo service mongod start' runs in the background
+# processManagement:
+#  fork: false
+#  pidFilePath: "/var/run/mongodb/mongod.pid"
 net:
   port: $mongodPort
 security:

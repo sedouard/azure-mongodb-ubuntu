@@ -1,5 +1,5 @@
 #!/bin/bash
-# 
+#
 # Copyright (c) Microsoft. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,11 +18,12 @@
 
 #
 # setupMongoNode.sh : MongoDB Node Configuration Script by Jeff Wilcox
+# Ubuntu version by Steven Edouard and Guido Vilariño
 #
-# Target Image: OpenLogic CentOS, Azure IaaS VM
+# Target Image: Ubuntu 14.04, Azure IaaS VMs
 #
-# A specialized script specific to Microsoft Azure for configuring a 
-# MongoDB cluster (without sharding, and without anything fancy 
+# A specialized script specific to Microsoft Azure for configuring a
+# MongoDB cluster (without sharding, and without anything fancy
 # like RAID disks).
 #
 # Helps setup a primary node, join an existing cluster, or setup an
@@ -33,7 +34,7 @@
 # should get additional dedicated IOPS for that extra disk.
 #
 # Per the available Azure performance whitepapers, it is not
-# recommended to use RAID configurations for increasing IOPS or 
+# recommended to use RAID configurations for increasing IOPS or
 # availability. This differs some from the standard guidance for
 # using MongoDB on some other cloud providers based in the Seattle
 # area, so we'll need to revisit this as more people use MongoDB
@@ -41,7 +42,7 @@
 #
 # This script doesn't do well with error handling or restarting, so
 # be sure you're ready to run it when you get going. If you need to
-# try again, just delete the /etc/mongod.conf file and stop the 
+# try again, just delete the /etc/mongod.conf file and stop the
 # mongod service if it has run before + blow away the db data.
 #
 # No warranties or anything implied by this script, but I do hope
@@ -51,7 +52,8 @@
 
 
 echo Specialized MongoDB on Microsoft Azure configuration script
-echo by Jeff Wilcox and contributors
+echo original verision for CentOS by Jeff Wilcox and contributors
+echo Ubuntu version by Steven Edouard and Guido Vilariño
 echo
 
 
@@ -76,7 +78,8 @@ sudo npm install -g npm@latest
 
 nodeInstalled=$(node --version)
 if [ -z "$nodeInstalled" ]; then
-	echo ----ERROR---- Node.js could not be installed.
+	echo ----ERROR----
+	echo Node.js could not be installed :(
 	exit 1
 fi
 
@@ -95,6 +98,13 @@ sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
 echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | sudo tee /etc/apt/sources.list.d/mongodb.list
 sudo apt-get update
 sudo apt-get install -y mongodb-org
+
+mongoInstalled=$(mongod --version)
+if [ -z "$mongoInstalled" ]; then
+	echo ----ERROR----
+	echo MongoDB could not be installed :(
+	exit 1
+fi
 
 ### AZURE STORAGE CONFIG
 
@@ -318,10 +328,6 @@ systemLog:
   path: "/var/log/mongodb/mongod.log"
   quiet: false
   logAppend: true
-# Unneeded since 'sudo service mongod start' runs in the background
-# processManagement:
-#  fork: false
-#  pidFilePath: "/var/run/mongodb/mongod.pid"
 net:
   port: $mongodPort
 security:
@@ -361,7 +367,6 @@ echo Starting MongoDB service...
 # This needs to be done again for some reason
 sudo chown -R mongodb:mongodb $mongoDataPath
 sudo service mongod start
-# sudo update-rc.d mongod defaults
 
 if $isPrimary; then
 

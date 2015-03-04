@@ -54,106 +54,106 @@ function attachDataDisks(vmName, diskSize, callback){
 
 function createVirtualMachines(count, cb){
 
-    console.log('Getting list of virtual machines...');
+	console.log('Getting list of virtual machines...');
 
-    scripty.invoke('vm list', function (err, result) {
+	scripty.invoke('vm list', function (err, result) {
 
-        if (err) {
-            return cb(err);
-        }
+		if (err) {
+			return cb(err);
+		}
 
-        var baseName = nconf.get('vm_name_prefix');
+		var baseName = nconf.get('vm_name_prefix');
 
-        var vmNames = [];
+		var vmNames = [];
 
-        //create the array of the computed VM names
-        for (var z = 0; z < count; z++) {
-            vmNames.push(baseName + z.toString());
-        }
+		//create the array of the computed VM names
+		for (var z = 0; z < count; z++) {
+			vmNames.push(baseName + z.toString());
+		}
 
-        //go through the list of existing vms
-        for (var i in result) {
+		//go through the list of existing vms
+		for (var i in result) {
 
-            for (var k in vmNames) {
+			for (var k in vmNames) {
 
-                if (result[i].VMName === vmNames[k]) {
-                    //A VM we intend on creating already exists on this sub.
-                    //remove it on the list of VMs to create
-                    delete vmNames[k];
-                }
-            }
-        }
+				if (result[i].VMName === vmNames[k]) {
+					//A VM we intend on creating already exists on this sub.
+					//remove it on the list of VMs to create
+					delete vmNames[k];
+				}
+			}
+		}
 
-        //vmNames now only contains the name of VMs that do not exist
-        //create them
+		//vmNames now only contains the name of VMs that do not exist
+		//create them
 
-        var domainName = nconf.get('cloud_service_name');
-        var userName = nconf.get('vm_username');
-        
-        var imageName = nconf.get('vm_image_name');
-        var vmCreationTasks = [];
-        var taskArguments = [];
-        var primaryPasscode = uuid.v4();
-        console.log("DEBUG!!!");
-        console.dir(vmNames);
-        for (var m in vmNames) {
+		var domainName = nconf.get('cloud_service_name');
+		var userName = nconf.get('vm_username');
+		
+		var imageName = nconf.get('vm_image_name');
+		var vmCreationTasks = [];
+		var taskArguments = [];
+		var primaryPasscode = uuid.v4();
+		console.log("DEBUG!!!");
+		console.dir(vmNames);
+		for (var m in vmNames) {
 
-            if (vmNames[m]) {
-                var cmd = {
-                    command: 'vm create',
-                    positional: [nconf.get('cloud_service_name'), imageName],
-                    'vm-name': vmNames[m],
-                    'custom-data': 'setupMongoNode-' + vmNames[m] + '.sh',
-                    'userName': nconf.get('vm_username'),
-                    'ssh' : (22000 + parseInt(m)).toString(),
-                    'virtual-network-name': nconf.get('vnet_name'),
-                    'affinity-group': nconf.get('affinity_group_name'),
-                    'virtual-network-name': nconf.get('vnet_name'),
-                    'no-ssh-password': true,
-                    'availability-set': nconf.get('availability_set_name'),
-                    'ssh-cert': nconf.get('ssh_cert_path'),
-                    'vm-size': nconf.get('vm_size'),
-                    'blob-url': 'https://' + nconf.get('storage_account_name') + '.blob.core.windows.net/vhds/' + nconf.get('vm_name_prefix') + '-' + m + '.vhd'
-                }
-                
-                //add connect parameter to say that we are connecting to an existing cloud service
-                if(m > 0){
-                	cmd.connect = true;
-                }
-
-
-                console.dir(cmd);
-                var task = function (args, callback) {
-                	//generate custom-data script
-	                fs.readFile('setupMongoNode-NonInteractive.sh', {encoding:'utf8'}, function(err,data){
-	                	scripty.invoke('storage account keys list ' + nconf.get('storage_account_name'),
-	                		function(err,keys){
-		                	if(err){
-		                		return cb(err);
-		                	}
-
-		                	var newContent = "";
-		                	var lines = data.split('\n');
-		                	for(var i in lines){
-		                		newContent += lines[i] + '\n';
-		                		if(lines[i].indexOf("NODE-GEN VARIABLES") > 0){
-		                			if(args[0] == 0){
-		                				newContent += 'export isPrimary=true \n';
-		                				newContent += 'export primaryHostname=$(hostname) \n';
-		                			}
-		                			else{
-		                				newContent += 'export isPrimary=false \n';
-		                				newContent += 'export primaryHostname=' + vmNames[0] + '\n';
-		                			}
-		                			newContent += 'export primaryPasscode='+ args[2] + '\n';
-		                			newContent += 'export storageAccount=' + nconf.get('storage_account_name') + '\n';
-		                			newContent += 'export storageKey=' + keys.primaryKey;
-
-		                		}
+			if (vmNames[m]) {
+				var cmd = {
+					command: 'vm create',
+					positional: [nconf.get('cloud_service_name'), imageName],
+					'vm-name': vmNames[m],
+					'custom-data': 'setupMongoNode-' + vmNames[m] + '.sh',
+					'userName': nconf.get('vm_username'),
+					'ssh' : (22000 + parseInt(m)).toString(),
+					'virtual-network-name': nconf.get('vnet_name'),
+					'affinity-group': nconf.get('affinity_group_name'),
+					'virtual-network-name': nconf.get('vnet_name'),
+					'no-ssh-password': true,
+					'availability-set': nconf.get('availability_set_name'),
+					'ssh-cert': nconf.get('ssh_cert_path'),
+					'vm-size': nconf.get('vm_size'),
+					'blob-url': 'https://' + nconf.get('storage_account_name') + '.blob.core.windows.net/vhds/' + nconf.get('vm_name_prefix') + '-' + m + '.vhd'
+				}
+				
+				//add connect parameter to say that we are connecting to an existing cloud service
+				if(m > 0){
+					cmd.connect = true;
+				}
 
 
-		                	}
-        					fs.writeFile('setupMongoNode-' + vmNames[args[0]] + '.sh', newContent, function(err,data){
+				console.dir(cmd);
+				var task = function (args, callback) {
+					//generate custom-data script
+					fs.readFile('setupMongoNode-NonInteractive.sh', {encoding:'utf8'}, function(err,data){
+						scripty.invoke('storage account keys list ' + nconf.get('storage_account_name'),
+							function(err,keys){
+							if(err){
+								return cb(err);
+							}
+
+							var newContent = "";
+							var lines = data.split('\n');
+							for(var i in lines){
+								newContent += lines[i] + '\n';
+								if(lines[i].indexOf("NODE-GEN VARIABLES") > 0){
+									if(args[0] == 0){
+										newContent += 'export isPrimary=true \n';
+										newContent += 'export primaryHostname=$(hostname) \n';
+									}
+									else{
+										newContent += 'export isPrimary=false \n';
+										newContent += 'export primaryHostname=' + vmNames[0] + '\n';
+									}
+									newContent += 'export primaryPasscode='+ args[2] + '\n';
+									newContent += 'export storageAccount=' + nconf.get('storage_account_name') + '\n';
+									newContent += 'export storageKey=' + keys.primaryKey;
+
+								}
+
+
+							}
+							fs.writeFile('setupMongoNode-' + vmNames[args[0]] + '.sh', newContent, function(err,data){
 								if(err){
 									return callback(err);
 								}
@@ -164,15 +164,15 @@ function createVirtualMachines(count, cb){
 								}
 								scripty.invoke(args[1], function (err) {
 
-			                        if (err) {
-			                            console.log('Vm creation failed: ' + vmNames[args[0]]);
-			                            console.dir(err);
-			                            return callback(err);
-			                        }
+									if (err) {
+										console.log('Vm creation failed: ' + vmNames[args[0]]);
+										console.dir(err);
+										return callback(err);
+									}
 
-			                        console.log('vm creation of ' + vmNames[args[0]] + ' successful');
-			                        
-			                        attachDataDisks(vmNames[args[0]], nconf.get('data_disk_size'), function(err, data){
+									console.log('vm creation of ' + vmNames[args[0]] + ' successful');
+									
+									attachDataDisks(vmNames[args[0]], nconf.get('data_disk_size'), function(err, data){
 
 										if(err){
 											console.log('Failed to create disk');
@@ -182,35 +182,35 @@ function createVirtualMachines(count, cb){
 										return callback();
 									});
 
-			                        
-		                    	});	
+									
+								});	
 								
-			                   
+							   
 							});
-		                	
-		                });
+							
+						});
 					});
-                }
+				}
 
-                task = task.bind(this, [m, cmd, primaryPasscode]);
-                vmCreationTasks.push(task);
-            }
+				task = task.bind(this, [m, cmd, primaryPasscode]);
+				vmCreationTasks.push(task);
+			}
 
-        }
+		}
 
-        async.series(vmCreationTasks, function (err) {
+		async.series(vmCreationTasks, function (err) {
 
-            if (err) {
+			if (err) {
 
-                return cb(err);
+				return cb(err);
 
-            }
+			}
 
-            console.log('All VMs created successfully!');
-            return cb();
-        });
+			console.log('All VMs created successfully!');
+			return cb();
+		});
 
-    });
+	});
 
 }
 

@@ -1,8 +1,8 @@
-=======
-waz-mongodb
-===========
 
-[![Join the chat at https://gitter.im/sedouard/waz-mongodb](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sedouard/waz-mongodb?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+waz-mongodb
+=======
+
+[![Join the chat at https://gitter.im/sedouard/azure-mongodb-ubuntu](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sedouard/azure-mongodb-ubuntu?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 An unofficial set of Bash scripts to build out a simple MongoDB replica set, designed for Microsoft Azure Linux compute VMs.
 
@@ -69,6 +69,7 @@ brew install openssl
 ```
 
 ## Getting the Azure CLI Ready
+<<<<<<< HEAD
 
 To initialize your `azure` CLI for use with your subscription execute the command:
 
@@ -78,6 +79,17 @@ azure account download
 
 This will redirect you to your browser to authenticate to Microsoft Azure. Afterwards download your .publishsettings file and use its path as the parameter for this command which sets you up to run the scripts:
 
+=======
+
+To initialize your `azure` CLI for use with your subscription execute the command:
+
+```bash
+azure account download
+```
+
+This will redirect you to your browser to authenticate to Microsoft Azure. Afterwards download your .publishsettings file and use its path as the parameter for this command which sets you up to run the scripts:
+
+>>>>>>> e95b67f606c3f27d7c8b377fb366f726a4feb628
 ```
 azure account import <path to .publishsettings file>
 ```
@@ -109,7 +121,7 @@ The configuration file for 2.6 is at `/etc/mongod.conf`, but it is now ideally a
 
 Oh Noes! If something with your deployment went wrong, you can diagnose the issue by grabbing a few pieces of info.
 
-If there is an issue on your client (i.e.: the machine you're running `node createMongoCluster.js` from check the azure.err log specified in the error ).
+If there is an issue on your client (i.e.: the machine you're running `node createMongoCluster.js` from ) check the azure.err log specified in the error.
 
 If the error is in one of the instances spun up by azure SSH into the box you're interested in and check some interesting logs:
 

@@ -49,6 +49,10 @@
 # it helps!
 #
 
+## Do not remove the comment below. The Node.js script createMongoCluster.js looks for it
+## to setup custom variables to generate this script if its a primary, non-primary or arbiter node
+## NODE-GEN VARIABLES
+
 
 
 echo Specialized MongoDB on Microsoft Azure configuration script
@@ -64,9 +68,9 @@ pushd /tmp > /dev/null
 
 echo Forcing locale settings to en_US.UTF-8
 sudo locale-gen UTF-8
-export LANGUAGE=en_US.UTF-8
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
+sudo echo export LANGUAGE=en_US.UTF-8 >> ~/.profile
+sudo echo export LANG=en_US.UTF-8 >> ~/.profile
+sudo echo export LC_ALL=en_US.UTF-8 >> ~/.profile
 
 ### PREREQ SOFTWARE
 
@@ -79,12 +83,12 @@ sudo npm install -g npm@latest
 nodeInstalled=$(node --version)
 if [ -z "$nodeInstalled" ]; then
 	echo ----ERROR----
-	echo Node.js could not be installed :(
+	echo Node.js could not be installed
 	exit 1
 fi
 
 echo Installing Azure Node.js module...
-npm install azure@0.8.1 > /tmp/nodeInstall.log 2>&1
+sudo npm install azure@0.8.1 > /tmp/nodeInstall.log 2>&1
 
 echo Installing Azure storage utility...
 wget --no-check-certificate https://raw.githubusercontent.com/jeffwilcox/waz-updown/master/updown.js > /tmp/updownInstall.log 2>&1
@@ -98,24 +102,24 @@ sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
 echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | sudo tee /etc/apt/sources.list.d/mongodb.list
 sudo apt-get update
 sudo apt-get install -y mongodb-org
+echo Stopping MongoDB...
+sudo service mongod stop
 
 mongoInstalled=$(mongod --version)
 if [ -z "$mongoInstalled" ]; then
 	echo ----ERROR----
-	echo MongoDB could not be installed :(
+	echo MongoDB could not be installed
 	exit 1
 fi
 
 ### AZURE STORAGE CONFIG
 
 if [ -z "$AZURE_STORAGE_ACCOUNT" ]; then
-	read -p "Azure storage account name? " storageAccount
 	export AZURE_STORAGE_ACCOUNT=$storageAccount
 	echo
 fi
 
 if [ -z "$AZURE_STORAGE_ACCESS_KEY" ]; then
-	read -s -p "Account access key? " storageKey
 	export AZURE_STORAGE_ACCESS_KEY=$storageKey
 	echo
 fi
@@ -158,26 +162,19 @@ function ask {
 
 ### VARIABLES
 
-isPrimary=true
 isArbiter=false
 isUsingDataDisk=true
 
 mongoDataPath=/var/lib/mongo
 
-primaryPasscode=
-primaryHostname=$(hostname)
 
 
 
 ### CONFIGURATION
 
-read -p "What is the name of the replica set? (Default: rs0) " replicaSetName
-
 if [ -z "$replicaSetName" ]; then
 	replicaSetName=rs0
 fi
-
-read -p "What is the mongod instance port? (Default: 27017) " mongodPort
 
 if [ -z "$mongodPort" ]; then
 	mongodPort=27017
@@ -185,17 +182,17 @@ fi
 
 replicaSetKey=$replicaSetName.key
 
-if ! ask "Is this the first node in the replica set? "; then
+if ! $isPrimary; then
 	isPrimary=false
 
-	if ask "Is this an arbiter?"; then
+	if $isArbiter "Is this an arbiter?"; then
 		isArbiter=true
 		isUsingDataDisk=false
 	fi
 
 	echo
-	read -p "Primary node hostname? " primaryHostname
-	read -p "Primary node cluster administrator password? " -s primaryPasscode
+	# read -p "Primary node hostname? " primaryHostname
+	# read -p "Primary node cluster administrator password? " -s primaryPasscode
 	echo
 	echo
 fi
@@ -206,9 +203,7 @@ if ! $isArbiter; then
 	echo scenario. Recommended for a production instance, this is not 
 	echo required.
 	echo
-	if ! ask "Would you like to use a data disk? "; then
-		isUsingDataDisk=false
-	fi
+	isUsingDataDisk=true
 fi
 
 if $isPrimary; then
@@ -217,33 +212,8 @@ if $isPrimary; then
 	echo be needed to bring online new nodes in the cluster.
 	echo
 
-	npm install node-uuid
-	 > /tmp/npm-temp.log 2>&1
-
-	echo Time to set a password for the 'clusteradmin' user. This user will not 
-	echo directly have access to data stored in the cluster, but it will be able
-	echo to create and modify such credentials.
-	echo
-	echo Here is a suggested password that is a random UUID, in case you like 
-	echo what you see:
-	node -e "var uuid = require('node-uuid'); console.log(uuid.v4());"
-	echo
-
 	primaryPasscodeConfirmation="$primaryPasscode somethingExtraSoItDoesntMatch"
 	tempPasscodeHolder="$primaryPasscode"
-
-	while [ "$primaryPasscode" != "$primaryPasscodeConfirmation" ]
-	do
-		if [ "$primaryPasscode" != "$tempPasscodeHolder" ]; then
-			echo The passwords did not match, please try again.
-		fi
-		read -s -p "Please enter a new password for the 'clusteradmin' MongoDB user: " primaryPasscode
-		echo
-		read -s -p "Please confirm that awesome new password: " primaryPasscodeConfirmation
-		echo
-	done
-
-	tempPasscodeHolder=
 
 fi
 
@@ -359,9 +329,6 @@ sudo chown mongodb:mongodb $replicaSetKey
 sudo chmod 0600 $replicaSetKey
 sudo mv $replicaSetKey /etc/$replicaSetKey
 
-echo Stopping MongoDB...
-sudo service mongod stop
-
 echo
 echo About to bring back online MongoDB.
 echo This may take a few minutes as the initial journal is preallocated.
@@ -375,18 +342,19 @@ sudo service mongod start
 if $isPrimary; then
 
 	echo Initializing the replica set...
-
-	sleep 2
+	# wait a long while because mongo may take a bit to startup
+	sleep 180
 
 	cat <<EOF > /tmp/initializeReplicaSetPrimary.js
 rsconfig = {_id: "$replicaSetName",members:[{_id:0,host:"$primaryHostname:$mongodPort"}]}
 rs.initiate(rsconfig);
 rs.conf();
 EOF
+	
+	echo /usr/bin/mongo 127.0.0.1:27017 /tmp/initializeReplicaSetPrimary.js 
+	sudo /usr/bin/mongo 127.0.0.1:27017 /tmp/initializeReplicaSetPrimary.js
 
-	/usr/bin/mongo /tmp/initializeReplicaSetPrimary.js > /tmp/creatingMongoCluster.log 2>&1
-
-	sleep 10
+	sleep 20
 
 	echo Creating cluster administrator account...
 	cat <<EOF > /tmp/initializeAuthentication.js
@@ -402,14 +370,15 @@ db.createUser({
   ]
 });
 EOF
-
-	/usr/bin/mongo /tmp/initializeAuthentication.js --verbose > /tmp/creatingMongoClusterAdmin.log 2>&1	
+	
+	echo /usr/bin/mongo 127.0.0.1:27017 /tmp/initializeAuthentication.js --verbose
+	sudo /usr/bin/mongo 127.0.0.1:27017 /tmp/initializeAuthentication.js --verbose 
 
 	echo Authentication ready. Restarting MongoDB...
 	sudo service mongod restart
 
 	# remove credentials trace
-	rm /tmp/initializeAuthentication.js
+	#rm /tmp/initializeAuthentication.js
 
 	echo
 	echo So you now have a 'clusteradmin' user that can administer the replica set 
@@ -425,12 +394,11 @@ EOF
 	echo   mongo MYDB -u username -p password
 	echo
 
-	if ask "Would you like to connect to MongoDB Shell now as 'clusteradmin' to do this? "; then
-		/usr/bin/mongo admin -u clusteradmin -p $primaryPasscode
-	fi
-
 else
 
+	#this is not the intial but we do need to delay to wait for the
+	#initial to come online
+	sleep 200
 	ourHostname=$(hostname)
 
 	if $isArbiter; then
@@ -452,16 +420,6 @@ EOF
 
 	echo Joining the MongoDB cluster...
 	/usr/bin/mongo $primaryHostname/admin -u clusteradmin -p $primaryPasscode /tmp/joinCluster.js --verbose > /tmp/joinCluster.log 2>&1
-
-	if ask "Would you like to view the replica set status? "; then
-		/usr/bin/mongo $primaryHostname/admin -u clusteradmin -p $primaryPasscode << EOF
-rs.status();
-EOF
-	fi
-
-	if ask "Would you like to connect to the primary node to look around? "; then
-		/usr/bin/mongo $primaryHostname/admin -u clusteradmin -p $primaryPasscode
-	fi
 
 fi
 

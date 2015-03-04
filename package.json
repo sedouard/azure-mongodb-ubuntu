@@ -1,0 +1,24 @@
+{
+  "name": "waz-mongodb",
+  "version": "1.0.0",
+  "description": "waz-mongodb ===========",
+  "main": "createMongoCluster.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sedouard/waz-mongodb.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sedouard/waz-mongodb/issues"
+  },
+  "homepage": "https://github.com/sedouard/waz-mongodb",
+  "dependencies": {
+    "async": "^0.9.0",
+    "azure-scripty": "^1.0.1",
+    "nconf": "^0.7.1"
+  }
+}

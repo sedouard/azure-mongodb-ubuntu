@@ -1,0 +1,17 @@
+{
+	"_comment": "Configuration for a mongodb cluster. Modify as necessary. VM Count should always be odd as 1 extrasmall arbiter VM will be created in addition to the number provided",
+	"vm_name_prefix": "mongobase",
+	"vm_size":"Medium",
+	"affinity_group_name": "mongoaffinity",
+	"location" : "West US",
+	"vm_count": 3,
+	"subnet_name": "VMs",
+	"vm_username": "sedouard",
+	"vm_image_name": "b39f27a8b8c64d52b05eac6a62ebad85__Ubuntu-14_04_1-LTS-amd64-server-20150123-en-us-30GB",
+	"ssh_cert_path": "/Users/user/Documents/deis/contrib/azure/mycert.pem",
+	"cloud_service_name": "mongosedouard",
+	"storage_account_name": "mongosedouardstorage",
+	"vnet_name": "mongovnet",
+	"availability_set_name": "mongoavailability",
+	"data_disk_size": 60
+}

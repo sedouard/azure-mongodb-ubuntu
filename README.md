@@ -68,6 +68,12 @@ npm install azure-cli -g
 brew install openssl
 ```
 
+You'll also need t install the necessary dependencies in the package. Execute this command at the root of this repository:
+
+```bash
+npm install
+```
+
 ## Getting the Azure CLI Ready
 
 

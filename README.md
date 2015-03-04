@@ -1,7 +1,8 @@
-[![Join the chat at https://gitter.im/sedouard/azure-mongodb-ubuntu](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sedouard/azure-mongodb-ubuntu?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 waz-mongodb
+=======
 
+[![Join the chat at https://gitter.im/sedouard/azure-mongodb-ubuntu](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/sedouard/azure-mongodb-ubuntu?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 An unofficial set of Bash scripts to build out a simple MongoDB replica set, designed for Microsoft Azure Linux compute VMs.
 
@@ -120,7 +121,7 @@ The configuration file for 2.6 is at `/etc/mongod.conf`, but it is now ideally a
 
 Oh Noes! If something with your deployment went wrong, you can diagnose the issue by grabbing a few pieces of info.
 
-If there is an issue on your client (i.e.: the machine you're running `node createMongoCluster.js` from check the azure.err log specified in the error ).
+If there is an issue on your client (i.e.: the machine you're running `node createMongoCluster.js` from ) check the azure.err log specified in the error.
 
 If the error is in one of the instances spun up by azure SSH into the box you're interested in and check some interesting logs:
 

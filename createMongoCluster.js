@@ -165,8 +165,6 @@ function createVirtualMachines(count, cb){
 								scripty.invoke(args[1], function (err) {
 
 									if (err) {
-										console.log('Vm creation failed: ' + vmNames[args[0]]);
-										console.dir(err);
 										return callback(err);
 									}
 

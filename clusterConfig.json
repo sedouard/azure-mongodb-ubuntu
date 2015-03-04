@@ -1,5 +1,5 @@
 {
-	"_comment": "Configuration for a mongodb cluster. Modify as necessary. VM Count should always be odd as 1 extrasmall arbiter VM will be created in addition to the number provided",
+	"_comment": "Configuration for a mongodb cluster. Modify as necessary. VM Count should always be odd",
 	"vm_name_prefix": "mongobase",
 	"vm_size":"Medium",
 	"affinity_group_name": "mongoaffinity",

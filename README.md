@@ -12,7 +12,7 @@ This is a fork that specifically works for Ubuntu instances
 
 ## Supported versions
 
-This script currently is designed to deploy MongoDB 2.6 replica sets on a cluster of Ubuntu 14.04 VMs
+This script currently is designed to deploy MongoDB 2l.6 replica sets on a cluster of Ubuntu 14.04 VMs
 
 Also, it's been tested to work properly on VMs based on the following image:
 
@@ -116,7 +116,65 @@ To login to the cluster after the script has executed, ssh into the machine of i
 ```bash
 mongo -u clusteradmin -p >pass< --authenticationDatabase admin
 ```
+You can easily check the replica set status by doing:
 
+```js
+rs.status()
+```
+You should see the output of all the machines you placed in the replica set:
+
+```json
+rs0:SECONDARY> rs.status()
+{
+	"set" : "rs0",
+	"date" : ISODate("2015-03-06T19:25:50Z"),
+	"myState" : 2,
+	"syncingTo" : "mongobase0:27017",
+	"members" : [
+		{
+			"_id" : 0,
+			"name" : "mongobase0:27017",
+			"health" : 1,
+			"state" : 1,
+			"stateStr" : "PRIMARY",
+			"uptime" : 2368,
+			"optime" : Timestamp(1425666454, 1),
+			"optimeDate" : ISODate("2015-03-06T18:27:34Z"),
+			"lastHeartbeat" : ISODate("2015-03-06T19:25:49Z"),
+			"lastHeartbeatRecv" : ISODate("2015-03-06T19:25:50Z"),
+			"pingMs" : 1,
+			"electionTime" : Timestamp(1425666162, 1),
+			"electionDate" : ISODate("2015-03-06T18:22:42Z")
+		},
+		{
+			"_id" : 1,
+			"name" : "mongobase1:27017",
+			"health" : 1,
+			"state" : 2,
+			"stateStr" : "SECONDARY",
+			"uptime" : 2376,
+			"optime" : Timestamp(1425666454, 1),
+			"optimeDate" : ISODate("2015-03-06T18:27:34Z"),
+			"self" : true
+		},
+		{
+			"_id" : 2,
+			"name" : "mongobase2:27017",
+			"health" : 1,
+			"state" : 2,
+			"stateStr" : "SECONDARY",
+			"uptime" : 2366,
+			"optime" : Timestamp(1425666454, 1),
+			"optimeDate" : ISODate("2015-03-06T18:27:34Z"),
+			"lastHeartbeat" : ISODate("2015-03-06T19:25:48Z"),
+			"lastHeartbeatRecv" : ISODate("2015-03-06T19:25:48Z"),
+			"pingMs" : 0,
+			"syncingTo" : "mongobase0:27017"
+		}
+	],
+	"ok" : 1
+}
+```
 ### YAML Mongo configuration
 The configuration file for 2.6 is at `/etc/mongod.conf`, but it is now ideally a YAML-formatted file going forward. [Configuration settings documentation here](http://docs.mongodb.org/manual/reference/configuration-options/). The old format will be supported by MongoDB for some time, but this script now writes the newer YAML format.
 

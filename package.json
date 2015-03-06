@@ -19,6 +19,7 @@
   "dependencies": {
     "async": "^0.9.0",
     "azure-scripty": "^1.0.1",
-    "nconf": "^0.7.1"
+    "nconf": "^0.7.1",
+    "node-uuid": "^1.4.3"
   }
 }

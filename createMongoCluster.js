@@ -306,7 +306,7 @@ function createStorageAccountIfNotExists(callback){
 }
 
 function createAffinityGroupIfNotExists(callback){
-	console.log('Setting up affinity group...', vmName);
+	console.log('Setting up affinity group...');
 
 	scripty.invoke({
 		command: "account affinity-group list"

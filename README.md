@@ -109,6 +109,14 @@ openssl pkcs12 -in ~/.ssh/mongocluster.pfx -out ~/.ssh/mongocluster.pem -clcerts
 
 Ok, you're now good to go. Open up `clusterConfig.json` to set the names for your cluster variables as well as the path to your ssh certificate you just generated. Save and just `npm install && node createMongoCluster.js`. This will take about 10 minutes, depending on how many VMs you want your cluster to have, so be patient.
 
+### Logging Into the Cluster
+
+To login to the cluster after the script has executed, ssh into the machine of interest and execute:
+
+```bash
+mongo -u clusteradmin -p >pass< --authenticationDatabase admin
+```
+
 ### YAML Mongo configuration
 The configuration file for 2.6 is at `/etc/mongod.conf`, but it is now ideally a YAML-formatted file going forward. [Configuration settings documentation here](http://docs.mongodb.org/manual/reference/configuration-options/). The old format will be supported by MongoDB for some time, but this script now writes the newer YAML format.
 

@@ -4,6 +4,7 @@ var assert = require('assert');
 var async = require('async');
 var fs = require('fs');
 var uuid = require('node-uuid');
+
 // fetch our settings
 nconf.file({ file: 'clusterConfig.json' });
 
@@ -39,6 +40,8 @@ createAffinityGroupIfNotExists(function(err, result){
 });
 
 function attachDataDisks(vmName, diskSize, callback){
+	console.log('Attaching disk to VM %s', vmName);
+
 	var cmd = {
 		command: 'vm disk attach-new',
 		positional: [vmName, diskSize, 'https://' + nconf.get('storage_account_name') + '.blob.core.windows.net/vhds/' + vmName + 'data.vhd']
@@ -54,7 +57,7 @@ function attachDataDisks(vmName, diskSize, callback){
 
 function createVirtualMachines(count, cb){
 
-	console.log('Getting list of virtual machines...');
+	console.log('Creating %s VMs (make sure it\'s an odd number!)', count);
 
 	scripty.invoke('vm list', function (err, result) {
 
@@ -89,12 +92,16 @@ function createVirtualMachines(count, cb){
 
 		var domainName = nconf.get('cloud_service_name');
 		var userName = nconf.get('vm_username');
-		
+
 		var imageName = nconf.get('vm_image_name');
 		var vmCreationTasks = [];
 		var taskArguments = [];
 		var primaryPasscode = uuid.v4();
-		console.log("DEBUG!!!");
+
+		console.log('=======================================')
+		console.log('IMPORTANT STUFF!!!! The cluster admin username is clusteradmin and the password is %s', primaryPasscode);
+		console.log('=======================================')
+
 		console.dir(vmNames);
 		for (var m in vmNames) {
 
@@ -115,7 +122,7 @@ function createVirtualMachines(count, cb){
 					'vm-size': nconf.get('vm_size'),
 					'blob-url': 'https://' + nconf.get('storage_account_name') + '.blob.core.windows.net/vhds/' + nconf.get('vm_name_prefix') + '-' + m + '.vhd'
 				}
-				
+
 				//add connect parameter to say that we are connecting to an existing cloud service
 				if(m > 0){
 					cmd.connect = true;
@@ -136,7 +143,7 @@ function createVirtualMachines(count, cb){
 							var lines = data.split('\n');
 							for(var i in lines){
 								newContent += lines[i] + '\n';
-								if(lines[i].indexOf("NODE-GEN VARIABLES") > 0){
+								if(lines[i].indexOf('NODE-GEN VARIABLES') > 0){
 									if(args[0] == 0){
 										newContent += 'export isPrimary=true \n';
 										newContent += 'export primaryHostname=$(hostname) \n';
@@ -165,11 +172,12 @@ function createVirtualMachines(count, cb){
 								scripty.invoke(args[1], function (err) {
 
 									if (err) {
+										console.log('Error happens here: %s', err)
 										return callback(err);
 									}
 
 									console.log('vm creation of ' + vmNames[args[0]] + ' successful');
-									
+
 									attachDataDisks(vmNames[args[0]], nconf.get('data_disk_size'), function(err, data){
 
 										if(err){
@@ -180,12 +188,9 @@ function createVirtualMachines(count, cb){
 										return callback();
 									});
 
-									
-								});	
-								
-							   
+
+								});
 							});
-							
 						});
 					});
 				}
@@ -199,7 +204,7 @@ function createVirtualMachines(count, cb){
 		async.series(vmCreationTasks, function (err) {
 
 			if (err) {
-
+				console.log('ERROR during async VM creation task: %s', err);
 				return cb(err);
 
 			}
@@ -213,6 +218,7 @@ function createVirtualMachines(count, cb){
 }
 
 function createVNetIfNotExists(callback){
+	console.log('Setting up virtual network...');
 
 	scripty.invoke({
 		command: "network vnet list",
@@ -220,16 +226,15 @@ function createVNetIfNotExists(callback){
 	function(err, vnets){
 
 		var exists = false;
-		
+
 		for(var i in vnets){
 			if(vnets[i].name === nconf.get('vnet_name')){
 				exists = true;
 				break;
 			}
 		}
-		console.log('Debug1');
+
 		if(!exists){
-			console.log('Debug2');
 			var cmd = {
 				command: "network vnet create",
 				positional:[nconf.get('vnet_name')],
@@ -261,6 +266,7 @@ function createVNetIfNotExists(callback){
 }
 
 function createStorageAccountIfNotExists(callback){
+	console.log('Setting up storage account...');
 
 	scripty.invoke({
 		command: "storage account list",
@@ -305,6 +311,8 @@ function createStorageAccountIfNotExists(callback){
 }
 
 function createAffinityGroupIfNotExists(callback){
+	console.log('Setting up affinity group...');
+
 	scripty.invoke({
 		command: "account affinity-group list"
 	},
@@ -343,9 +351,6 @@ function createAffinityGroupIfNotExists(callback){
 				return callback(null);
 			});
 		}
-		
 	});
-
-	
 }
 

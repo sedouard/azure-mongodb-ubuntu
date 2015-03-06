@@ -22,7 +22,7 @@ However by the time you're reading this you may want to pick an more updated ima
 
 If you want to try newer images, run `$ azure vm image list --json | grep 14_04` and select the newest available.
 
-Now, [that original post](http://www.jeff.wilcox.name/2013/09/mongodb-azure-linux/) is sort of outdated and highly interactive, so it ends up being error-prone. So if you want this to go faster, you may automate the whole infrastrucure creation by running: 
+Now, [that original post](http://www.jeff.wilcox.name/2013/09/mongodb-azure-linux/) is sort of outdated and highly interactive, so it ends up being error-prone. So if you want this to go faster, you may automate the whole infrastrucure creation by running:
 
 ```
 node createMongoCluster.js
@@ -107,7 +107,7 @@ openssl pkcs12 -in ~/.ssh/mongocluster.pfx -out ~/.ssh/mongocluster.pem -clcerts
 # generates ~./mongocluster.pem which you'll end up using in the script
 ```
 
-Ok, you're now good to go. Open up `clusterConfig.json` to set the names for your cluster variables as well as the path to your ssh certificate you just generated. Save and just `./createAzureMongoCluster.sh`. This will take about 10 minutes, so be patient.
+Ok, you're now good to go. Open up `clusterConfig.json` to set the names for your cluster variables as well as the path to your ssh certificate you just generated. Save and just `npm install && node createMongoCluster.js`. This will take about 10 minutes, depending on how many VMs you want your cluster to have, so be patient.
 
 ### YAML Mongo configuration
 The configuration file for 2.6 is at `/etc/mongod.conf`, but it is now ideally a YAML-formatted file going forward. [Configuration settings documentation here](http://docs.mongodb.org/manual/reference/configuration-options/). The old format will be supported by MongoDB for some time, but this script now writes the newer YAML format.

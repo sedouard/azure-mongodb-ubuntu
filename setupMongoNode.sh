@@ -79,7 +79,7 @@ sudo npm install -g npm@latest
 nodeInstalled=$(node --version)
 if [ -z "$nodeInstalled" ]; then
 	echo ----ERROR----
-	echo Node.js could not be installed :(
+	echo Node.js could not be installed
 	exit 1
 fi
 
@@ -102,7 +102,7 @@ sudo apt-get install -y mongodb-org
 mongoInstalled=$(mongod --version)
 if [ -z "$mongoInstalled" ]; then
 	echo ----ERROR----
-	echo MongoDB could not be installed :(
+	echo MongoDB could not be installed
 	exit 1
 fi
 

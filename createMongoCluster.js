@@ -97,7 +97,11 @@ function createVirtualMachines(count, cb){
 		var vmCreationTasks = [];
 		var taskArguments = [];
 		var primaryPasscode = uuid.v4();
-		console.log("DEBUG!!!");
+
+		console.log('=======================================')
+		console.log('IMPORTANT STUFF!!!! The cluster admin username is clusteradmin and the password is %s', primaryPasscode);
+		console.log('=======================================')
+
 		console.dir(vmNames);
 		for (var m in vmNames) {
 
@@ -168,6 +172,7 @@ function createVirtualMachines(count, cb){
 								scripty.invoke(args[1], function (err) {
 
 									if (err) {
+										console.log('Error happens here: %s', err)
 										return callback(err);
 									}
 
@@ -199,7 +204,7 @@ function createVirtualMachines(count, cb){
 		async.series(vmCreationTasks, function (err) {
 
 			if (err) {
-
+				console.log('ERROR during async VM creation task: %s', err);
 				return cb(err);
 
 			}

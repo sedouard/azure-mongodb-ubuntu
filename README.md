@@ -127,7 +127,7 @@ cat /var/log/cloud-init-output.log
 
 The mongodb log can be found here:
 ```
-cat /var/log/mongodb/mongodb.log
+cat /var/log/mongodb/mongod.log
 ```
 
 Finally the scripts outputs some log output to files within `tmp`

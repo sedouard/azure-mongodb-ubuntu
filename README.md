@@ -111,19 +111,10 @@ Ok, you're now good to go. Open up `clusterConfig.json` to set the names for you
 
 ### Logging Into the Cluster
 
-To login to the cluster after the script has executed, ssh into the machine of interest and execute:
 
-```bash
-mongo -u clusteradmin -p >pass< --authenticationDatabase admin
-```
 You can easily check the replica set status by doing:
 
-```js
-rs.status()
 ```
-You should see the output of all the machines you placed in the replica set:
-
-```json
 rs0:SECONDARY> rs.status()
 {
 	"set" : "rs0",

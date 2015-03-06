@@ -1,7 +1,7 @@
 {
-  "name": "waz-mongodb",
+  "name": "azure-mongodb-ubuntu",
   "version": "1.0.0",
-  "description": "waz-mongodb ===========",
+  "description": "Automated MongoDB cluster creation utility for Microsoft Azure",
   "main": "createMongoCluster.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

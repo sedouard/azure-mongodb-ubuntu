@@ -52,6 +52,8 @@ You can change the settings in the [clusterConfig.json](./clusterConfig.json) fi
 }
 ```
 
+(note: `availabilty_set_name` cannot have spaces in it)
+
 # Automated cluster generation
 
 **NOTE**: this has only been tested to work in an OS/X 10.10 (Yosemite) bash terminal. However because its based on node and the [azure x-plat CLI](http://npmjs.org/packages/azure-cli) it should work on any platform node.js is supported.

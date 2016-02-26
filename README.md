@@ -46,13 +46,14 @@ You can change the settings in the [clusterConfig.json](./clusterConfig.json) fi
 	"ssh_cert_path": "/Users/user/Documents/deis/contrib/azure/mycert.pem",
 	"cloud_service_name": "mongosedouard",
 	"storage_account_name": "mongosedouardstorage",
+	"storage_account_type": "LRS",
 	"vnet_name": "mongovnet",
 	"availability_set_name": "mongoavailability",
 	"data_disk_size": 60
 }
 ```
 
-(note: `availabilty_set_name` cannot have spaces in it)
+(Notes: `availabilty_set_name` cannot have spaces in it and type the desired storage account type (LRS,ZRS,GRS,RAGRS or PLRS) in `storage_account_type`
 
 # Automated cluster generation
 

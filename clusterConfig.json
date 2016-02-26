@@ -11,6 +11,7 @@
 	"ssh_cert_path": "/Users/user/Documents/deis/contrib/azure/mycert.pem",
 	"cloud_service_name": "mongosedouard",
 	"storage_account_name": "mongosedouardstorage",
+	"storage_account_type": "LRS",
 	"vnet_name": "mongovnet",
 	"availability_set_name": "mongoavailability",
 	"data_disk_size": 60

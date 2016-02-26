@@ -290,7 +290,8 @@ function createStorageAccountIfNotExists(callback){
 				command: "storage account create",
 				positional:[nconf.get('storage_account_name')],
 				'affinity-group': nconf.get('affinity_group_name'),
-				description: "MongoDB Cluster Storage Account"
+				description: "MongoDB Cluster Storage Account",
+				type: nconf.get('storage_account_type')
 			}
 			scripty.invoke(cmd, function(err,result){
 				if(err){
